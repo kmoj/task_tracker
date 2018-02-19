@@ -1,0 +1,9 @@
+<%= if @current_user.name == @task.assigned_to do %>
+<h2>Edit Task Assigned To Me</h2>
+<% else %>
+<h2>Edit Task Assigned By Me</h2>
+<% end %>
+
+<%= render TaskTrackerWeb.PageView, "editFrom.html", Map.put(assigns, :action, task_path(@conn, :update, @task)) %>
+
+<span><%= link "Back", to: task_path(@conn, :index) %></span>

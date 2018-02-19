@@ -1,0 +1,135 @@
+
+<div class="container" >
+    <div class="row">
+        <div class="col">
+            <h1>
+                New Task
+            </h1><span><h5>Assigned as: <%= @current_user.name %></h5></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <%= render TaskTrackerWeb.TaskView, "form.html", Map.put(assigns, :action, task_path(@conn, :create)) %>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+
+        <h2>Tasks Assigned To Me</h2>
+
+        <div class="row">
+            <div class="col">
+                <p> Finished:
+                   <%= Enum.count(@tasks, fn(x) -> x.complete && x.assigned_to == @current_user.name end)%>
+                </p>
+            </div>
+            <div class="col">
+                <p>
+                   Working on:
+                   <%= Enum.count(@tasks, fn(x) -> !x.complete && x.assigned_to == @current_user.name end)%>
+                </p>
+            </div>
+        </div>
+
+        <table class="table" style="margin:auto;">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Time(mins)</th>
+              <th>Complete</th>
+              <th>Assigned by</th>
+
+            </tr>
+          </thead>
+          <tbody>
+        <%= for task <- @tasks do %>
+        <%= if task.assigned_to == @current_user.name do %>
+            <tr  class="<%=if task.complete do "alert alert-success"else "alert alert-warning" end%>">
+              <td><%= task.title %></td>
+              <td><%= task.description %></td>
+              <td><%= task.time %></td>
+              <td >
+              <%= if task.complete do %>
+                <span class="glyphicon-alert" style="height:30px;width:20px;"></span>
+              <% else %>
+                <strong style="color:#ff2e66">X</strong>
+              <% end %>
+              </td>
+              <td><%= task.user.name %></td>
+
+              <td class="text-right">
+                <span><%= link "Show", to: task_path(@conn, :show, task), class: "btn btn-default btn-xs" %></span>
+                <%= if !task.complete do %>
+                <span><%= link "Edit", to: task_path(@conn, :edit, task), class: "btn btn-default btn-xs" %></span>
+                <% end %>
+                <span><%= link "Delete", to: task_path(@conn, :delete, task), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %></span>
+              </td>
+            </tr>
+        <% end %>
+        <% end %>
+          </tbody>
+        </table>
+   </div>
+
+   <div class="col-md-6">
+
+        <h2>Tasks Assigned By Me</h2>
+
+        <div class="row">
+            <div class="col">
+                <p> Finished:
+                   <%= Enum.count(@tasks, fn(x) -> x.complete && x.user.id == @current_user.id end)%>
+                </p>
+            </div>
+            <div class="col">
+                <p>
+                   Working on:
+                   <%= Enum.count(@tasks, fn(x) -> !x.complete && x.user.id == @current_user.id end)%>
+                </p>
+            </div>
+        </div>
+
+        <table class="table" style="margin:auto;">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Assigned to</th>
+              <th>Time(mins)</th>
+              <th>Complete</th>
+            </tr>
+          </thead>
+          <tbody>
+        <%= for task <- @tasks do %>
+        <%= if task.user.id == @current_user.id do %>
+           <tr  class="<%=if task.complete do "alert alert-success"else "alert alert-warning" end%>">
+              <td><%= task.title %></td>
+              <td><%= task.description %></td>
+              <td><%= task.assigned_to %></td>
+              <td><%= task.time %></td>
+              <td >
+              <%= if task.complete do %>
+                <span class="glyphicon-alert" style="height:30px;width:20px;"></span>
+              <% else %>
+                <strong style="color:#ff2e66">X</strong>
+              <% end %>
+              </td>
+
+
+              <td class="text-right">
+                <span><%= link "Show", to: task_path(@conn, :show, task), class: "btn btn-default btn-xs" %></span>
+                <%= if !task.complete do %>
+                <span><%= link "Edit", to: task_path(@conn, :edit, task), class: "btn btn-default btn-xs" %></span>
+                <% end %>
+                <span><%= link "Delete", to: task_path(@conn, :delete, task), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %></span>
+              </td>
+           </tr>
+        <% end %>
+        <% end %>
+          </tbody>
+        </table>
+   </div>
+</div>
