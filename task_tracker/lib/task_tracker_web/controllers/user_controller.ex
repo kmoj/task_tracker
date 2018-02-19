@@ -16,9 +16,9 @@ defmodule TaskTrackerWeb.UserController do
 
   def create(conn, %{"user" => user_params}) do
     name = user_params["name"]
-    flag = false
+    email = user_params["email"]
     error_msg = nil
-    if ! Accounts.get_user_by_name(name) do
+    if ! Accounts.get_user_by_name(name) && ! Accounts.get_user_by_email(email) do
       case Accounts.create_user(user_params) do
         {:ok, user} ->
           conn
@@ -28,8 +28,13 @@ defmodule TaskTrackerWeb.UserController do
           render(conn, "new.html", changeset: changeset)
       end
     else
+      if Accounts.get_user_by_name(name) do
+        error_msg = "the name #{name} already exists"
+      else
+        error_msg = "the email #{email} already exists"
+      end
       conn
-      |> put_flash(:error, "Error: the name #{name} already exists")
+      |> put_flash(:error, "Error: #{error_msg}")
       |> redirect(to: user_path(conn, :new))
     end
   end
